@@ -48,7 +48,7 @@ function testCase(cases){
 		for(var cn in cases){
 			var c = cases[cn];
 			if(c[3] === false) continue;
-			var tmpl = doT.compile(c[0]);
+			var tmpl = hotmess.compile(c[0]);
 			equal(tmpl(c[1]), c[2], cn);
 		}
 	};
