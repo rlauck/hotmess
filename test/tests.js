@@ -1,59 +1,57 @@
-var tests = {
-	"basic": {
-		"No template": ["test template", {}, "test template"],
-		"Single brackets": ["{test}", {}, "{test}"],
-		"HTML escape": ["{{data}}", {data:"this /& that &#38;"}, "this &#47;&#38; that &#38;"],
-		"HTML unescape": ["{{&data}}", {data:"& \" < >"}, "& \" < >"],
-		"Empty data": ["<p>{{data}}</p>", {}, "<p></p>"],
-		"Integer": ["int {{data}}", {data:69}, "int 69"],
-		"Float": ["float {{data}}", {data:3.141590}, "float 3.14159"],
-		"Dots": ["my name is {{person.first}} {{person.middle.initial}} {{person.last}}", {person: {first: "H", middle: {initial: "A"}, last: "L"}}, "my name is H A L"],
-		
-		"Broken Dots": ["{{a.b.c}}", {a: {}}, "", false]
-	},
-	"conditionals": {
-		"If else": ["{{? email}}email:{{email}}{{?? false}}else{{?}}", {email: "test@test.com"}, "email:test@test.com"]
-	},
-	"iterators": {
-		"Simple": ["{{~ loop}}{{this}}{{~}}", {loop: ["a", "b", "c"]}, "abc"],
-		"Simple dot": ["{{~ loop}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "abc"],
-		"Index": ["{{~ loop}}{{.key}}{{~}}", {loop: ["a", "b", "c"]}, "012"],
-		"Array of objects": ["{{~ loop}}{{name}}{{~}}", 
-			{loop: [
-				{name:"a"},
-				{name:"b"},
-				{nope:"c"}
-			]}, "ab"],
-		"Nested": ["{{~ loop}}{{~ inner}}{{this}}{{~}}{{~}}", 
-			{loop: [
-				{inner:["a", "b"]},
-				{inner:["c", "d", "e"]},
-				{inner:["f"]},
-				{inner:[]},
-				{nope:["g"]}]}, "abcdef"],
-		"Parent context": ["{{~ loop}}{{../name}}-{{this}}.{{~}}", {name: "test", loop: ["a", "b", "c"]}, "test-a.test-b.test-c."],
-		"Nested parent": ["{{~ l1}}{{~ l2}}{{~ l3}}{{../../../a}}{{../../b}}{{.}} {{~}}{{~}}{{~}}", 
-			{a: "a", l1: [
-				{b: "b", l2: [ {l3: [1, 2]} ]},
-				{b: "bb", l2: [ {l3: [3]}, {l3: [4, 5]} ]}
-			]},
-			"ab1 ab2 abb3 abb4 abb5 "
-		]
-	}
-};
+test("basic", function(){
+	tmplEquals("No template", "test template", {}, "test template");
+	tmplEquals("Single brackets", "{test}", {}, "{test}");
+	tmplEquals("HTML escape", "{{data}}", {data:"this /& that &#38;"}, "this &#47;&amp; that &#38;");
+	tmplEquals("HTML unescape", "{{&data}}", {data:"& \" < >"}, "& \" < >");
+	tmplEquals("Empty data", "<p>{{data}}</p>", {}, "<p></p>");
+	tmplEquals("Whitespace", "<p>{{ 	data		\r\n\t}}</p>", {data:"test"}, "<p>test</p>");
+	tmplEquals("Integer", "int {{data}}", {data:69}, "int 69");
+	tmplEquals("Float", "float {{data}}", {data:3.141590}, "float 3.14159");
+	tmplEquals("Dots", "my name is {{person.first}} {{person.middle.initial}} {{person.last}}", {person: {first: "H", middle: {initial: "A"}, last: "L"}}, "my name is H A L");
+	
+	//tmplEquals("Broken Dots", "{{a.b.c}}", {a: {}}, "");
+});
 
-function testCase(cases){
-	return function(){
-		for(var cn in cases){
-			var c = cases[cn];
-			if(c[3] === false) continue;
-			var tmpl = hotmess.compile(c[0]);
-			equal(tmpl(c[1]), c[2], cn);
-		}
-	};
-}
+test("conditionals", function(){
+	tmplEquals("If else", "{{? email}}email:{{email}}{{?? false}}else{{?}}", {email: "test@test.com"}, "email:test@test.com");
+	
+	throws(function(){hotmess.compile("{{? a}}fail");}, SyntaxError, "Bad syntax");
+});
 
-for(var name in tests){
-  var cases = tests[name];
-	test(name, testCase(cases));
+test("iterators", function(){
+	tmplEquals("Simple", "{{~ loop}}{{this}}{{~}}", {loop: ["a", "b", "c"]}, "abc");
+	tmplEquals("Simple dot", "{{~ loop}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "abc");
+	tmplEquals("Index", "{{~ loop}}{{.key}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "0a1b2c");
+	tmplEquals("Array of objects", "{{~ loop}}{{name}}{{~}}", 
+		{loop: [
+			{name:"a"},
+			{name:"b"},
+			{nope:"c"}
+		]},
+		"ab"
+	);
+	tmplEquals("Nested", "{{~ loop}}{{~ inner}}{{this}}{{~}}-{{test}},{{~}}", 
+		{loop: [
+			{inner:["a", "b"], test:1},
+			{inner:["c", "d", "e"], test:2},
+			{inner:["f"]},
+			{inner:[], test:3},
+			{nope:["g"]}
+		]},
+		"ab-1,cde-2,f-,-3,-,"
+	);
+	tmplEquals("Parent context", "{{~ loop}}{{../name}}-{{this}}.{{~}}", {name: "test", loop: ["a", "b", "c"]}, "test-a.test-b.test-c.");
+	tmplEquals("Nested parent", "{{~ l1}}{{~ l2}}{{~ l3}}{{../../../a}}{{../../b}}{{.}} {{~}}{{~}}{{~}}", 
+		{a: "a", l1: [
+			{b: "b", l2: [ {l3: [1, 2]} ]},
+			{b: "bb", l2: [ {l3: [3]}, {l3: [4, 5]} ]}
+		]},
+		"ab1 ab2 abb3 abb4 abb5 "
+	);
+});
+
+function tmplEquals(name, tmpl, data, expected){
+	var template = hotmess.compile(tmpl);
+	var html = template(data);
+	equal(html, expected, name);
 }
