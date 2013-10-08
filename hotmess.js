@@ -40,7 +40,6 @@
 					.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r') // preserve whitespace (ex: <pre> tags)
 					.replace(/(\s|;|\}|^|\{)o\+='';/g, '$1'); // toss empty appends
 
-			console.log(str);
 			try {
 				return new Function("v", str);
 			} catch (e) {
