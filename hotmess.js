@@ -16,7 +16,7 @@
 		},
 		enc: function(s) {
 			var map = this.options.htmlMap;
-			return s ? String(s).replace(this.options.html, function(m) {return map[m] || m;}) : '';
+			return s === undefined ? '' : String(s).replace(this.options.html, function(m) {return map[m] || m;});
 		},
 		compile: function(tmpl, def) {
 			var c = this.options,
@@ -29,9 +29,9 @@
 							(code ? "';if(" + value(code) + "){o+='" : "';}o+='");
 					})
 					.replace(c.iterate, function(m, iterate) {
-						if (!iterate) return "';} i=p.i;p=p.p;} o+='";
+						if(!iterate) return "';};i=p.i;p=p.p;} o+='";
 						var arr="a"+(++sid);
-						return "';var "+arr+"="+value(iterate)+";if("+arr+"){var p={v:v,p:p,i:i},v,i;for(i in "+arr+"){v="+arr+"[i];o+='";
+						return "';var "+arr+"="+value(iterate)+";if("+arr+"){var p={v:v,p:p,i:i},v,i=-1;while(++i < "+arr+".length){v="+arr+"[i];o+='";
 					})
 					.replace(c.encode, function(m, unesc, code) {
 						return "';o+="+(unesc?"(":"hotmess.enc(") + value(code) + ");o+='";
