@@ -1,67 +1,47 @@
-/* 
- * Hotmess.js micro-templating kludgework (https://github.com/rlauck/hotmess)
+/* Hotmess.js template engine (https://github.com/rlauck/hotmess)
  * @author Ryan Lauck
  */
 (function(root){
 	"use strict";
 
-	var hotmess = root.hotmess = {
-		version: '0.0.1',
-		options: {
-			encode:      /\{\{(&)?\s*([\S]+?)\s*\}\}/g,
-			conditional: /\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g,
-			iterate:     /\{\{~\s*(?:\}\}|([\s\S]+?)\s*\}\})/g,
-			html:        /&(?!#?\w+;)|<|>|"|'|\//g,
-			htmlMap:     {"&":"&#38;", "<":"&#60;", ">":"&#62;", '"':'&#34;', "'":'&#39;', "/":'&#47;'}
-		},
-		enc: function(s) {
-			var map = this.options.htmlMap;
-			return s === undefined ? '' : String(s).replace(this.options.html, function(m) {return map[m] || m;});
-		},
-		compile: function(tmpl, def) {
-			var c = this.options,
-				sid = 0,
-				str = ("var o='" + tmpl
-					.replace(/'|\\/g, '\\$&') // escape quotes and backslashes
-					.replace(c.conditional, function(m, elsecase, code) {
-						return elsecase ?
-							(code ? "';}else if(" + value(code) + "){o+='" : "';}else{o+='") :
-							(code ? "';if(" + value(code) + "){o+='" : "';}o+='");
-					})
-					.replace(c.iterate, function(m, iterate) {
-						if(!iterate) return "';};i=p.i;p=p.p;} o+='";
-						var arr="a"+(++sid);
-						return "';var "+arr+"="+value(iterate)+";if("+arr+"){var p={v:v,p:p,i:i},v,i=-1;while(++i < "+arr+".length){v="+arr+"[i];o+='";
-					})
-					.replace(c.encode, function(m, unesc, code) {
-						return "';o+="+(unesc?"(":"hotmess.enc(") + value(code) + ");o+='";
-					})
-					+ "';return o;")
-					.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r') // preserve whitespace (ex: <pre> tags)
-					.replace(/(\s|;|\}|^|\{)o\+='';/g, '$1'); // toss empty appends
-
-			try {
-				return new Function("v", str);
-			} catch (e) {
-				if (typeof console !== 'undefined') console.log("Could not create a template function: " + str);
-				throw e;
-			}
-		}
-	};
+	var map = {"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':'&quot;', "'":'&#39;', "/":'&#47;'},
+	    html = /&(?!#?\w+;)|<|>|"|'|\//g;
 	
 	function value(code) {
-		if(/^\s*(this|\.)\s*$/.test(code)) return "v";
-		if(/^\s*(this)?\.key\s*$/.test(code)) return "i";
-		var parts = code.replace(/\\('|\\)/g, "$1")
-										.replace(/[\r\t\n]+/g, ' ')
-										.split(/\.\.\//);
+		if(/^\s*(this|\.)\s*$/.test(code)) return "v"; // match current context: this or .
+		if(/^\s*(this)?\.key\s*$/.test(code)) return "i"; // match current iteration key: this.key or .key
+		var parts = code.replace(/\\('|\\)/g, "$1") // unescape apostrophe and backslash
+										.replace(/\s+/g, ' ') // strip whitespace
+										.split(/\.\.\//); // split on parent (../) then generate the context chain
 		parts[parts.length-1] = "v."+parts[parts.length-1];
 		return parts.join("p.");
 	}
+	  
+	root.hotmess = {
+		version: '0.0.2',
+		enc: function(s) {
+			return s === undefined ? '' : String(s).replace(html, function(c){return map[c] || c;});
+		},
+		compile: function(tmpl) {
+			return Function("v", ("var a,p,i,o='" + tmpl // create context [parent, value, list, key] and begin appending
+				.replace(/'|\\/g, '\\$&') // escape quotes and backslashes
+				.replace(/\{\{\?(\?)?\s*([\s\S]*?)\s*\}\}/g, function(m, elseif, test) { // conditional tag
+					return elseif ?
+						(test ? "';}else if("+value(test)+"){o+='" : "';}else{o+='") :
+						(test ? "';if("+value(test)+"){o+='"       : "';}o+='");
+				})
+				.replace(/\{\{~\s*(?:\}\}|([\s\S]+?)\s*\}\})/g, function(m, list) { // list tag
+					if(!list) return "';} }i=p.i;v=p.v;a=p.a;p=p.p;o+='"; // end tag: end loop, pop context
+					return "';p={v:v,p:p,i:i,a:a};a="+value(list)+";if(a){i=-1;while(++i < a.length){v=a[i];o+='"; // push context, begin loop
+				})
+				.replace(/\{\{(&)?\s*([\S]+?)\s*\}\}/g, function(m, unesc, v) { // variable tag
+					return "';o+=" + (unesc? "(" : "hotmess.enc(") + value(v) + ");o+='";
+				})
+				+ "';return o;")
+				.replace(/\n/g, '\\n').replace(/\t/g, '\\t').replace(/\r/g, '\\r') // preserve tabs and newlines (ex: <pre> tags)
+				.replace(/(\s|;|\}|^|\{)o\+='';/g, '$1')); // clean empty appends
+		}
+	};
 	
-	if (typeof exports === 'object') {
-		module.exports = hotmess;
-	} else if (typeof define === 'function' && define.amd) {
-		define(function(){return hotmess;});
-	}
-}(this));
+	if(typeof define === 'function' && define.amd) define(root.hotmess);
+}(this.exports||this));
