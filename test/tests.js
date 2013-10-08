@@ -24,7 +24,6 @@ var tests = {
 				{name:"b"},
 				{nope:"c"}
 			]}, "ab"],
-		"Object keys": ["{{~ obj}}{{this.key}}:{{this}},{{~}}", {obj: { name:"a", id:"b", yep:"c" }}, "name:a,id:b,yep:c,"],
 		"Nested": ["{{~ loop}}{{~ inner}}{{this}}{{~}}{{~}}", 
 			{loop: [
 				{inner:["a", "b"]},
