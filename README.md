@@ -16,25 +16,50 @@ Creating and rendering a template is as simple as:
 Variable tags render the named key from the current context, or nothing if it does not exist.
 All variables are escaped for HTML but can be rendered raw with an {{&amp; ampersand }}.
 
-Example data:
-
-    {
-      name: "Gob Bluth",
-      job: "<b>magician</b>"
-    }
-    
 Template:
 
-    	A {{&job}} never reveals his secrets! -{{name}}
+    var data = {
+      name: "Gob Bluth",
+      job: "<b>magician</b>"
+    };
+    var out = hotmess.compile("A {{&job}} never reveals his secrets! -{{name}}")(data);
 
 Output:
 
-    	A <b>Magician</b> never reveals his secrets! -Gob Bluth
-    	
-    	
+    A <b>Magician</b> never reveals his secrets! -Gob Bluth
+
+###Arrays
+
+Arrays are iterated with the {{~list}} tag. A plain {{~}} tag closes the list and the inner template
+is repeated for each array element. The context in the inner template is set to each array element and
+is accessible with the equivalent {{this}} or {{.}} tag. Properties of the parent tag are accessed with
+the ../ prefix such as {{../parent_property}}.
+
+Template:
+
+    var tmpl = hotmess.compile("<ul>\n\t{{~names}}<li>{{.}} {{../surname}}</li>\n{{~}}</ul>");
+    var out = tmpl({
+      surname: "Bluth",
+      names: ["George", "Buster", "Lucille"]
+    });
+    
+Output:
+
+    <ul>
+      <li>George Bluth</li>
+      <li>Buster Bluth</li>
+      <li>Lucille Bluth</li>
+    </ul>
+    
 ###Conditionals
 
 
-###Loops
+
+###Partials
+
+...eventually...
+    
+    
+    
 
 
