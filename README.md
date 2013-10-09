@@ -39,15 +39,19 @@ Output:
     A <b>Magician</b> never reveals his secrets! -Gob Bluth
     
 If a variable does not exist, nothing will be rendered unless you provide a default value.
+Surround default strings with quotes, or leave them off to name a different key as the default.
 
 Code:
 
-    var tmpl = hotmess.compile( '{{yep}}, {{nope : "(not here)"}}' );
-    var out = tmpl({ yep: "yep" });
+    var tmpl = hotmess.compile( '{{yep}}, {{nope : "missing"}}, {{nope:meh}}' );
+    var out = tmpl({
+      yep: "yep",
+      meh: "well... ok"
+    });
 
 Output:
 
-    yep, (not here)
+    yep, missing, well... ok
 
 ###Arrays
 
