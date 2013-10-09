@@ -54,9 +54,11 @@ Now something more complex.
     
 Template:
 
-    <ul>{{~ names}}
+    <ul>
+    {{~ names}}
       <li style="{{ style() }}">{{name}} {{../surname}}</li>
-    {{~}}</ul>
+    {{~}}
+    </ul>
 
 Data:
 
@@ -65,14 +67,12 @@ Data:
       
       names: [
         { name: "George", gender: "m" },
-        { name: "Lucille", gender: "f" },
-        { name: "Buster", gender: "m" }
+        { name: "Buster", gender: "m" },
+        { name: "Lucille", gender: "f" }
       ],
       
       style: function(value, i) {
-        // yep, you can call methods on your values too
-        // the 1st argument is the current value
-        // the 2nd is the array index if called within a list tag (starting from 0)
+        // yep, you can call methods too
         
         var style = value.gender == "f" ? "color:pink;" : "color:blue;";
         
@@ -112,9 +112,7 @@ TODO: create examples
 ##Benchmarks
 
 I hope to create some more rigorous benchmarks but for now I created a variant of the popular
-Javascript template language shootoff jsPerf: 
-
-http://jsperf.com/dom-vs-innerhtml-based-templating/836
+[Javascript template language shootoff jsPerf](http://jsperf.com/dom-vs-innerhtml-based-templating/836).
 
 ##About
 
