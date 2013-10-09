@@ -103,7 +103,7 @@ Any template may be called from within another template. There are some caveats 
 
 * The partial template must be compiled before the parent template is <b>rendered</b>.
 * No effort is made to prevent circular references, so infinite loops are possible.
-* The partial tag refers to a variable in the global scope - this will change soon.
+* The partial name refers to a variable in the <b>global</b> scope - this will change soon.
 
 Syntax: {{>partial}}
 
