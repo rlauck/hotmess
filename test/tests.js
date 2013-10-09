@@ -1,14 +1,36 @@
+function tmplEquals(name, tmpl, data, expected){
+	var template = hotmess.compile(tmpl);
+	var html = template(data);
+	equal(html, expected, name);
+}
+
 test("basic", function(){
 	tmplEquals("No template", "test template", {}, "test template");
 	tmplEquals("Single brackets", "{test}", {}, "{test}");
 	tmplEquals("HTML escape", "{{data}}", {data:"this /& that &#38;"}, "this &#47;&amp; that &#38;");
-	tmplEquals("HTML unescape", "{{&data}}", {data:"& \" < >"}, "& \" < >");
+	tmplEquals("HTML raw", "{{&data}}", {data:"& \" < >"}, "& \" < >");
+	tmplEquals("Default", '{{test:"default&"}}', {}, "default&amp;");
+	tmplEquals("Default value", '{{test:def}}', {def:"yep&"}, "yep&amp;");
+	tmplEquals("Default raw", '{{&test:"&"}}', {}, "&");
 	tmplEquals("Empty data", "<p>{{data}}</p>", {}, "<p></p>");
 	tmplEquals("Whitespace", "<p>{{ 	data		\r\n\t}}</p>", {data:"test"}, "<p>test</p>");
 	tmplEquals("Integer", "int {{data}}", {data:69}, "int 69");
 	tmplEquals("Float", "float {{data}}", {data:3.141590}, "float 3.14159");
 	tmplEquals("Dots", "my name is {{person.first}} {{person.middle.initial}} {{person.last}}", {person: {first: "H", middle: {initial: "A"}, last: "L"}}, "my name is H A L");
+	tmplEquals("Method", "call {{~list}}{{../m()}}+{{m()}},{{~}}", 
+		{
+			m: function(v){return this.a+v.a;}, 
+			a:1, 
+			list: [
+				{a:2,m:function(){return this.a;}},
+				{a:3,m:function(v){return v.a;}}
+			]
+		}, "call 3+2,4+3,");
 	
+	tmplEquals("Method iteration index", 
+		"<ul>{{~list}}<li style=\"color:{{../color()}}\">{{.}}</li>{{~}}</ul>", 
+		{color:function(v,i){return i%2==0?"white":"yellow";}, list:["a","b","c","d"]},
+		"<ul><li style=\"color:white\">a</li><li style=\"color:yellow\">b</li><li style=\"color:white\">c</li><li style=\"color:yellow\">d</li></ul>");
 	//tmplEquals("Broken Dots", "{{a.b.c}}", {a: {}}, "");
 });
 
@@ -21,7 +43,7 @@ test("conditionals", function(){
 test("iterators", function(){
 	tmplEquals("Simple", "{{~ loop}}{{this}}{{~}}", {loop: ["a", "b", "c"]}, "abc");
 	tmplEquals("Simple dot", "{{~ loop}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "abc");
-	tmplEquals("Index", "{{~ loop}}{{.key}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "0a1b2c");
+	//tmplEquals("Index", "{{~ loop}}{{.key}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "0a1b2c");
 	tmplEquals("Array of objects", "{{~ loop}}{{name}}{{~}}", 
 		{loop: [
 			{name:"a"},
@@ -50,8 +72,13 @@ test("iterators", function(){
 	);
 });
 
-function tmplEquals(name, tmpl, data, expected){
-	var template = hotmess.compile(tmpl);
-	var html = template(data);
-	equal(html, expected, name);
-}
+var part;
+test("partials", function(){
+	part = hotmess.compile("<b>{{p}}</b>");
+	
+	equal(hotmess.compile("<em>{{> part}}</em>")({p:"hi"}), "<em><b>hi</b></em>", "Simple partial");
+	
+	var tmpl = hotmess.compile("<ul>{{~list}}<li>{{> part}}</li>{{~}}</ul>");
+	var data = {list:[{p:"a"},{p:"b"}]};
+	equal(tmpl(data), "<ul><li><b>a</b></li><li><b>b</b></li></ul>", "List partial");
+});
