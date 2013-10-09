@@ -1,8 +1,6 @@
 #Hotmess.js
 
-Hotmess is a javascript templating engine with a focus on minimalism and performance during the compilation and rendering stages.
-
-This project is based on the work of Laura Doktorova https://github.com/olado/doT with a nod toward Mustache/Handlebars template syntax.
+Hotmess is a javascript templating engine focused on minimalism and performance.
 
 ##Usage
 
@@ -53,11 +51,18 @@ Output:
     
 ###Conditionals
 
-
+TODO: write me
 
 ###Partials
 
 ...eventually...
+
+##About
+
+I began this project to see how small and fast I could make a full featured template function.
+Hotmess is based on the work of Laura Doktorova https://github.com/olado/doT with a strong influence 
+by Mustache and Handlebars.
+
     
     
     
