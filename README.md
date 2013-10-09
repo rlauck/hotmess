@@ -2,6 +2,14 @@
 
 Hotmess is a javascript templating engine focused on minimalism and performance.
 
+##Features
+
+* Stupid fast!
+* Tiny! ~60 loc and <1kb minimized.
+* Use in the client and server.
+* Logic-less! With support for list iteration, "truthy" conditionals and default values.
+* Partials! Reuse templates and keep them concise.
+
 ##Usage
 
 Include the script in your page:
@@ -15,8 +23,8 @@ Creating and rendering a template is as simple as:
 
 ###Variables
 
-Variable tags render the named key from the current context, or nothing if it does not exist.
-All variables are escaped for HTML but can be rendered raw with an {{&amp; ampersand }}.
+Variable tags render the named key from the current object/context.
+All variables are HTML escaped but can be rendered raw by prepending an {{&amp; ampersand }}.
 
 Code:
 
@@ -24,11 +32,22 @@ Code:
       name: "Gob Bluth",
       job: "<b>magician</b>"
     };
-    var out = hotmess.compile("A {{&job}} never reveals his secrets! -{{name}}")(data);
+    var out = hotmess.compile( "A {{&job}} never reveals his secrets! -{{name}}" )(data);
 
 Output:
 
     A <b>Magician</b> never reveals his secrets! -Gob Bluth
+    
+If a variable does not exist, nothing will be rendered unless you provide a default value.
+
+Code:
+
+    var tmpl = hotmess.compile( '{{yep}}, {{nope : "(not here)"}}' );
+    var out = tmpl({ yep: "yep" });
+
+Output:
+
+    yep, (not here)
 
 ###Arrays
 
