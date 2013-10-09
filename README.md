@@ -4,6 +4,10 @@ Hotmess is a javascript templating engine focused on minimalism and performance.
 
 ##Usage
 
+Include the script in your page:
+
+    <script src="https://rawgithub.com/rlauck/hotmess/master/hotmess.js">
+
 Creating and rendering a template is as simple as:
   
     var tmpl = hotmess.compile("<p>I'm afraid I just {{color}} myself</p>");
@@ -14,7 +18,7 @@ Creating and rendering a template is as simple as:
 Variable tags render the named key from the current context, or nothing if it does not exist.
 All variables are escaped for HTML but can be rendered raw with an {{&amp; ampersand }}.
 
-Template:
+Code:
 
     var data = {
       name: "Gob Bluth",
@@ -33,29 +37,77 @@ is repeated for each array element. The context in the inner template is set to 
 is accessible with the equivalent {{this}} or {{.}} tag. Properties of the parent tag are accessed with
 the ../ prefix such as {{../parent_property}}.
 
+First a simple example.
+
+Code:
+
+    var tmpl = hotmess.compile( "{{~names}}{{.}} {{~}}" );
+    document.body.innerHTML = tmpl( { names: ["George", "Buster", "Lucille"] } );
+    
+Output:
+
+    George Buster Lucille
+
+------
+
+Now something more complex.
+    
 Template:
 
-    var tmpl = hotmess.compile("<ul>\n\t{{~names}}<li>{{.}} {{../surname}}</li>\n{{~}}</ul>");
-    var out = tmpl({
+    <ul>{{~ names}}
+      <li style="{{ style() }}">{{name}} {{../surname}}</li>
+    {{~}}</ul>
+
+Data:
+
+    {
       surname: "Bluth",
-      names: ["George", "Buster", "Lucille"]
-    });
+      
+      names: [
+        { name: "George", gender: "m" },
+        { name: "Lucille", gender: "f" },
+        { name: "Buster", gender: "m" }
+      ],
+      
+      style: function(value, i) {
+        // yep, you can call methods on your values too
+        // the 1st argument is the current value
+        // the 2nd is the array index if called within a list tag (starting from 0)
+        
+        var style = value.gender == "f" ? "color:pink;" : "color:blue;";
+        
+        // bold every other row
+        if( i % 2 == 0 ){
+          style += "font-weight:bold;";
+        }
+        
+        return style;
+      }
+    }
     
 Output:
 
     <ul>
-      <li>George Bluth</li>
-      <li>Buster Bluth</li>
-      <li>Lucille Bluth</li>
+      <li style="color:blue;font-weight:bold;">George Bluth</li>
+      <li style="color:blue;">Buster Bluth</li>
+      <li style="color:pink;font-weight:bold;">Lucille Bluth</li>
     </ul>
     
 ###Conditionals
 
-TODO: write me
+TODO: work in progress
 
 ###Partials
 
-...eventually...
+Any template may be called from within another template. There are some caveats currently:
+
+* The partial template must be compiled before the parent template is <b>rendered</b>.
+* No effort is made to prevent circular references, so infinite loops are possible.
+* The partial tag refers to a variable in the global scope - this will change soon.
+
+Syntax: {{>partial}}
+
+TODO: create examples
 
 ##Benchmarks
 
@@ -67,8 +119,7 @@ http://jsperf.com/dom-vs-innerhtml-based-templating/836
 ##About
 
 I began this project to see how small and fast I could make a full featured template function.
-Hotmess is based on the work of Laura Doktorova https://github.com/olado/doT with a strong influence 
-by Mustache and Handlebars.
+Hotmess is MIT Licensed and based on [doT](https://github.com/olado/doT) and [Mustache](https://github.com/janl/mustache.js).
 
     
     
