@@ -57,6 +57,13 @@ TODO: write me
 
 ...eventually...
 
+##Benchmarks
+
+I hope to create some more rigorous benchmarks but for now I created a variant of the popular
+Javascript template language shootoff jsPerf: 
+
+http://jsperf.com/dom-vs-innerhtml-based-templating/836
+
 ##About
 
 I began this project to see how small and fast I could make a full featured template function.
