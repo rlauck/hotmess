@@ -1,0 +1,14 @@
+{
+  "name": "hotmess",
+  "description": "Javascript templating engine focused on minimalism and performance",
+  "version": "0.0.3",
+  "main": "hotmess.js",
+  "scripts": [
+    "hotmess.js"
+  ],
+  "ignore": [
+    "test/",
+    "README.md"
+  ],
+  "license": "MIT"
+}
