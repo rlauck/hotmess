@@ -1,0 +1,16 @@
+{
+  "name": "hotmess",
+  "description": "Javascript templating engine focused on minimalism and performance.",
+  "version": "0.0.3",
+  "main": "hotmess.js",
+  "homepage": "https://github.com/rlauck/hotmess",
+  "license": "MIT",
+  "author": {
+    "name": "Ryan Lauck",
+    "email": "ryanlauck@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rlauck/hotmess.git"
+  }
+}
