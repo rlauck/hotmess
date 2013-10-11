@@ -1,0 +1,203 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Hotmess by rlauck</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Hotmess</h1>
+        <p class="header">Hotmess.js fast, tiny and powerful javascript templates</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/rlauck/hotmess/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/rlauck/hotmess/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/rlauck/hotmess">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/rlauck">rlauck</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a name="hotmessjs" class="anchor" href="#hotmessjs"><span class="octicon octicon-link"></span></a>Hotmess.js</h1>
+
+<p>Hotmess is a javascript templating engine focused on minimalism and performance.</p>
+
+<h2>
+<a name="features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<ul>
+<li>Stupid fast!</li>
+<li>Tiny! ~60 loc and &lt;1kb minimized.</li>
+<li>Use in the client and server.</li>
+<li>Logic-less! With support for list iteration, "truthy" conditionals and default values.</li>
+<li>Partials! Reuse templates and keep them concise.</li>
+</ul><h2>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Include the script in your page:</p>
+
+<pre><code>&lt;script src="https://rawgithub.com/rlauck/hotmess/master/hotmess.js"&gt;
+</code></pre>
+
+<p>Creating and rendering a template is as simple as:</p>
+
+<pre><code>var tmpl = hotmess.compile("&lt;p&gt;I'm afraid I just {{color}} myself&lt;/p&gt;");
+document.body.innerHTML = tmpl( {color:"blue"} );
+</code></pre>
+
+<h3>
+<a name="variables" class="anchor" href="#variables"><span class="octicon octicon-link"></span></a>Variables</h3>
+
+<p>Variable tags render the named key from the current object/context.
+All variables are HTML escaped but can be rendered raw by prepending an {{&amp; ampersand }}.</p>
+
+<p>Code:</p>
+
+<pre><code>var data = {
+  name: "Gob Bluth",
+  job: "&lt;b&gt;magician&lt;/b&gt;"
+};
+var out = hotmess.compile( "A {{&amp;job}} never reveals his secrets! -{{name}}" )(data);
+</code></pre>
+
+<p>Output:</p>
+
+<pre><code>A &lt;b&gt;Magician&lt;/b&gt; never reveals his secrets! -Gob Bluth
+</code></pre>
+
+<p>If a variable does not exist, nothing will be rendered unless you provide a default value.
+Surround default strings with quotes, or leave them off to name a different key as the default.</p>
+
+<p>Code:</p>
+
+<pre><code>var tmpl = hotmess.compile( '{{yep}}, {{nope : "missing"}}, {{nope:meh}}' );
+var out = tmpl({
+  yep: "yep",
+  meh: "well... ok"
+});
+</code></pre>
+
+<p>Output:</p>
+
+<pre><code>yep, missing, well... ok
+</code></pre>
+
+<h3>
+<a name="arrays" class="anchor" href="#arrays"><span class="octicon octicon-link"></span></a>Arrays</h3>
+
+<p>Arrays are iterated with the {{~list}} tag. A plain {{~}} tag closes the list and the inner template
+is repeated for each array element. The context in the inner template is set to each array element and
+is accessible with the {{.}} tag. Properties of the parent tag are accessed with
+the ../ prefix such as {{../parent_property}}.</p>
+
+<p>First a simple example.</p>
+
+<p>Code:</p>
+
+<pre><code>var tmpl = hotmess.compile( "{{~names}}{{.}} {{~}}" );
+document.body.innerHTML = tmpl( { names: ["George", "Buster", "Lucille"] } );
+</code></pre>
+
+<p>Output:</p>
+
+<pre><code>George Buster Lucille
+</code></pre>
+
+<hr><p>Now something more complex.</p>
+
+<p>Template:</p>
+
+<pre><code>&lt;ul&gt;
+{{~ names}}
+  &lt;li style="{{ style() }}"&gt;{{name}} {{../surname}}&lt;/li&gt;
+{{~}}
+&lt;/ul&gt;
+</code></pre>
+
+<p>Data:</p>
+
+<pre><code>{
+  surname: "Bluth",
+
+  names: [
+    { name: "George", gender: "m" },
+    { name: "Buster", gender: "m" },
+    { name: "Lucille", gender: "f" }
+  ],
+
+  style: function(value, i) {
+    // yep, you can call methods too
+
+    var style = value.gender == "f" ? "color:pink;" : "color:blue;";
+
+    // bold every other row
+    if( i % 2 == 0 ){
+      style += "font-weight:bold;";
+    }
+
+    return style;
+  }
+}
+</code></pre>
+
+<p>Output:</p>
+
+<pre><code>&lt;ul&gt;
+  &lt;li style="color:blue;font-weight:bold;"&gt;George Bluth&lt;/li&gt;
+  &lt;li style="color:blue;"&gt;Buster Bluth&lt;/li&gt;
+  &lt;li style="color:pink;font-weight:bold;"&gt;Lucille Bluth&lt;/li&gt;
+&lt;/ul&gt;
+</code></pre>
+
+<h3>
+<a name="conditionals" class="anchor" href="#conditionals"><span class="octicon octicon-link"></span></a>Conditionals</h3>
+
+<p>Syntax: {{? test}} test is truthy {{?? test2}} test2 is truthy {{??}} else case {{?}}</p>
+
+<p>TODO: create examples</p>
+
+<h3>
+<a name="partials" class="anchor" href="#partials"><span class="octicon octicon-link"></span></a>Partials</h3>
+
+<p>Any template may be called from within another template. There are some caveats currently:</p>
+
+<ul>
+<li>The partial template must be compiled and registered before the parent template is rendered.</li>
+<li>No effort is made to prevent circular references, so infinite loops are possible.</li>
+</ul><p>Syntax: {{&gt;partial}}</p>
+
+<p>TODO: create examples</p>
+
+<h2>
+<a name="benchmarks" class="anchor" href="#benchmarks"><span class="octicon octicon-link"></span></a>Benchmarks</h2>
+
+<p>I hope to create some more rigorous benchmarks but for now I created a variant of the popular
+<a href="http://jsperf.com/dom-vs-innerhtml-based-templating/836">Javascript template language shootoff jsPerf</a>.</p>
+
+<h2>
+<a name="about" class="anchor" href="#about"><span class="octicon octicon-link"></span></a>About</h2>
+
+<p>I began this project to see how small and fast I could make a full featured template function.
+Hotmess is MIT Licensed and based on <a href="https://github.com/olado/doT">doT</a> and <a href="https://github.com/janl/mustache.js">Mustache</a>.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
