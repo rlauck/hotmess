@@ -19,8 +19,7 @@
 		version: '0.0.4',
 		_t: {},
 		enc: function(s, def) {
-			//return ((s === void(0) ? def : s)+'').replace(html, replacement);
-			return String.replace(s === void(0) ? def : s, html, replacement);
+			return ((s === void(0) ? def : s)+'').replace(html, replacement);
 		},
 		raw: function(s, def) {
 			return s === void(0) ? def : s;
