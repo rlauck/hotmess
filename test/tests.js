@@ -12,6 +12,7 @@ test("basic", function(){
 	tmplEquals("Default", '{{test:"default&"}}', {}, "default&amp;");
 	tmplEquals("Default value", '{{test:def}}', {def:"yep&"}, "yep&amp;");
 	tmplEquals("Default raw", '{{&test:"&"}}', {}, "&");
+	tmplEquals("Default number", '{{test:num}}', {num:0}, "0");
 	tmplEquals("Empty data", "<p>{{data}}</p>", {}, "<p></p>");
 	tmplEquals("Whitespace", "<p>{{ 	data		\r\n\t}}</p>", {data:"test"}, "<p>test</p>");
 	tmplEquals("Integer", "int {{data}}", {data:69}, "int 69");
@@ -41,7 +42,7 @@ test("conditionals", function(){
 });
 
 test("iterators", function(){
-	tmplEquals("Simple", "{{~ loop}}{{this}}{{~}}", {loop: ["a", "b", "c"]}, "abc");
+	tmplEquals("Simple", "{{~ loop}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "abc");
 	tmplEquals("Simple dot", "{{~ loop}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "abc");
 	//tmplEquals("Index", "{{~ loop}}{{.key}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "0a1b2c");
 	tmplEquals("Array of objects", "{{~ loop}}{{name}}{{~}}", 
@@ -52,7 +53,7 @@ test("iterators", function(){
 		]},
 		"ab"
 	);
-	tmplEquals("Nested", "{{~ loop}}{{~ inner}}{{this}}{{~}}-{{test}},{{~}}", 
+	tmplEquals("Nested", "{{~ loop}}{{~ inner}}{{.}}{{~}}-{{test}},{{~}}", 
 		{loop: [
 			{inner:["a", "b"], test:1},
 			{inner:["c", "d", "e"], test:2},
@@ -62,7 +63,7 @@ test("iterators", function(){
 		]},
 		"ab-1,cde-2,f-,-3,-,"
 	);
-	tmplEquals("Parent context", "{{~ loop}}{{../name}}-{{this}}.{{~}}", {name: "test", loop: ["a", "b", "c"]}, "test-a.test-b.test-c.");
+	tmplEquals("Parent context", "{{~ loop}}{{../name}}-{{.}}.{{~}}", {name: "test", loop: ["a", "b", "c"]}, "test-a.test-b.test-c.");
 	tmplEquals("Nested parent", "{{~ l1}}{{~ l2}}{{~ l3}}{{../../../a}}{{../../b}}{{.}} {{~}}{{~}}{{~}}", 
 		{a: "a", l1: [
 			{b: "b", l2: [ {l3: [1, 2]} ]},
@@ -72,9 +73,8 @@ test("iterators", function(){
 	);
 });
 
-var part;
 test("partials", function(){
-	part = hotmess.compile("<b>{{p}}</b>");
+	var partial = hotmess.template("part", "<b>{{p}}</b>");
 	
 	equal(hotmess.compile("<em>{{> part}}</em>")({p:"hi"}), "<em><b>hi</b></em>", "Simple partial");
 	

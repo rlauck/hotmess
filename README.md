@@ -57,7 +57,7 @@ Output:
 
 Arrays are iterated with the {{~list}} tag. A plain {{~}} tag closes the list and the inner template
 is repeated for each array element. The context in the inner template is set to each array element and
-is accessible with the equivalent {{this}} or {{.}} tag. Properties of the parent tag are accessed with
+is accessible with the {{.}} tag. Properties of the parent tag are accessed with
 the ../ prefix such as {{../parent_property}}.
 
 First a simple example.
@@ -118,15 +118,16 @@ Output:
     
 ###Conditionals
 
-TODO: work in progress
+Syntax: {{? test}} test is truthy {{?? test2}} test2 is truthy {{??}} else case {{?}}
+
+TODO: create examples
 
 ###Partials
 
 Any template may be called from within another template. There are some caveats currently:
 
-* The partial template must be compiled before the parent template is <b>rendered</b>.
+* The partial template must be compiled and registered before the parent template is rendered.
 * No effort is made to prevent circular references, so infinite loops are possible.
-* The partial name refers to a variable in the <b>global</b> scope - this will change soon.
 
 Syntax: {{>partial}}
 

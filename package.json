@@ -1,7 +1,7 @@
 {
   "name": "hotmess",
   "description": "Javascript templating engine focused on minimalism and performance.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "hotmess.js",
   "homepage": "https://github.com/rlauck/hotmess",
   "license": "MIT",
