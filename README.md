@@ -116,11 +116,21 @@ Output:
       <li style="color:pink;font-weight:bold;">Lucille Bluth</li>
     </ul>
     
+####Empty Arrays
+
+A conditional block for empty arrays may be supplied via the {{~^}} operator:
+
+    {{~ myArray}}if filled I repeat this{{~^}}if empty I print this{{~}}
+    
 ###Conditionals
 
-Syntax: {{? test}} test is truthy {{?? test2}} test2 is truthy {{??}} else case {{?}}
+Hotmess supports simple conditionals with the if {{? property}} if operator, elseif {{?^ property}} and else {{?^}} operators.
 
-TODO: create examples
+Syntax: {{? test}} test is truthy {{?^ elseIfTest}} elseIfTest is truthy {{?^}} else nothing was truthy {{?}}
+
+You may also test for the false or missing values by adding the not ! symbol before the property name {{? !property}}
+
+TODO: add more examples
 
 ###Partials
 
