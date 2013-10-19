@@ -16,8 +16,7 @@
 
 	var map = {"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':'&quot;', "'":'&#39;', "/":'&#47;'},
 	    html = /&(?!#?\w+;)|<|>|"|'|\//g,
-	    replacement = function(c){return map[c];},
-	    raw = function(s, def){return (s === void(0) ? def : s)+'';};
+	    replacement = function(c){return map[c];};
 	
 	function value(code){
 		if(/^\s*\.key\b/.test(code)) return "i"; // match current iteration key
@@ -31,9 +30,9 @@
 		version: '0.0.4',
 		_t: {},
 		enc: function(s, def) {
-			return raw(s, def).replace(html, replacement);
+			return ((s === void(0) ? def : s)+'').replace(html, replacement);
 		},
-		raw: raw,
+		raw: function(s, def){return (s === void(0) ? def : s)+'';},
 		compile: function(tmpl) {
 			var src = ("var a,p,o='" + (tmpl||'')
 				.replace(/'|\\/g, '\\$&') // escape apostrophe and backslash
