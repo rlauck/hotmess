@@ -36,7 +36,9 @@ test("basic", function(){
 });
 
 test("conditionals", function(){
-	tmplEquals("If else", "{{? email}}email:{{email}}{{?? false}}else{{?}}", {email: "test@test.com"}, "email:test@test.com");
+	tmplEquals("If else if true", "{{? email}}email:{{email}}{{?^ false}}else{{?}}", {email: "test@test.com"}, "email:test@test.com");
+	tmplEquals("If else if false", "{{? email}}email:{{email}}{{?^ !email}}no email{{?}}", {email: ""}, "no email");
+	tmplEquals("If else", "{{? email}}email:{{email}}{{?^}}else{{?}}", {}, "else");
 	
 	throws(function(){hotmess.compile("{{? a}}fail");}, SyntaxError, "Bad syntax");
 });
@@ -44,6 +46,7 @@ test("conditionals", function(){
 test("iterators", function(){
 	tmplEquals("Simple", "{{~ loop}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "abc");
 	tmplEquals("Simple dot", "{{~ loop}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "abc");
+	tmplEquals("Invert", "{{~loop}}{{.}}{{~^}}empty{{~}}", {loop: []}, "empty");
 	//tmplEquals("Index", "{{~ loop}}{{.key}}{{.}}{{~}}", {loop: ["a", "b", "c"]}, "0a1b2c");
 	tmplEquals("Array of objects", "{{~ loop}}{{name}}{{~}}", 
 		{loop: [
